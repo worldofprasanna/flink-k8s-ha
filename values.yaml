@@ -2,6 +2,7 @@ replicaCount: 1
 image:
   repository: flink
   pullPolicy: IfNotPresent
+  tag: 1.13.0-scala_2.11-java8
 
 flink:
   cluster:
@@ -38,4 +39,6 @@ flink:
 
     taskmanager.numberOfTaskSlots: 1
 
-    env.java.opts: "-XX:+UseG1GC -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.rmi.port=1099 -Djava.rmi.server.hostname=127.0.0.1"
+    containerized.master.env.ENABLE_BUILT_IN_PLUGINS: flink-s3-fs-hadoop-1.13.0.jar
+    containerized.taskmanager.env.ENABLE_BUILT_IN_PLUGINS: flink-s3-fs-hadoop-1.13.0.jar
+

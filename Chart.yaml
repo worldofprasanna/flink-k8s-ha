@@ -1,7 +1,8 @@
 apiVersion: v2
 name: flink-k8s-ha
 description: Helm chart to run Flink on Kubernetes (Session mode) with HA enabled 
-
+annotations:
+  "helm.sh/hook": post-install, pre-delete
 type: application
 
 version: 0.1.0
