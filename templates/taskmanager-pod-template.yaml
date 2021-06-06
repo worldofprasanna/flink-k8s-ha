@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-taskmanager-pod-template
+data:
+  taskmanager-pod-template.yaml: |-
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: taskmanager-pod-template
+    spec:
+      containers:
+        - name: flink-main-container
+          resources:
+            {{- toYaml .Values.flink.cluster.resources.taskManager | nindent 12 }}
+      tolerations:
+        - key: "serviceNode"
+          operator: "Equal"
+          value: "flink"
+          effect: "NoSchedule"

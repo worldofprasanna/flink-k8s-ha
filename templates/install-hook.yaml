@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-install
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: {{ .Release.Name }}-cluster-deployment
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - /opt/flink/bin/kubernetes-session.sh
+            - -Dkubernetes.cluster-id={{ .Values.flink.cluster.name }}
+            - -Dexecution.attached=false
+            - -Dkubernetes.pod-template-file.jobmanager=/opt/flink-pod-template/jobmanager-pod-template.yaml
+            - -Dkubernetes.pod-template-file.taskmanager=/opt/flink-pod-template/jobmanager-pod-template.yaml
+            - -Dkubernetes.rest-service.exposed.type=NodePort
+            {{- range $key, $value := $.Values.flink.configuration }}
+            - -D{{ $key }}={{ tpl (toString $value) $ }}
+            {{- end }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-jobmanager-pod-template
+              mountPath: /opt/flink-pod-template/jobmanager-pod-template.yaml
+              subPath: jobmanager-pod-template.yaml
+            - name: {{ .Release.Name }}-taskmanager-pod-template
+              mountPath: /opt/flink-pod-template/taskmanager-pod-template.yaml
+              subPath: taskmanager-pod-template.yaml
+      tolerations:
+        - key: "serviceNode"
+          operator: "Equal"
+          value: "flink"
+          effect: "NoSchedule"
+      volumes:
+        - name: {{ .Release.Name }}-jobmanager-pod-template
+          configMap:
+            name: {{ .Release.Name }}-jobmanager-pod-template
+        - name: {{ .Release.Name }}-taskmanager-pod-template
+          configMap:
+            name: {{ .Release.Name }}-taskmanager-pod-template
