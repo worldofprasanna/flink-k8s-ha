@@ -23,8 +23,6 @@ flink:
           cpu: 1000m
           memory: 3072Mi
   configuration:
-    kubernetes.cluster-id: test-ha-flink
-
     high-availability.cluster-id: /flink-native
     high-availability: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
     high-availability.storageDir: s3a://<S3_BUCKET>/recovery

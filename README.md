@@ -15,11 +15,16 @@ Flink 1.13 on Kubernetes with HA mode enabled
 ## Install
 
 ```
+# Install helm and kubectl to connect to kubernetes cluster. Then,
+
+helm install flink-ha-test .
 ```
 
 ## Usage
 
 ```
+# To view the Dashboard UI, use port forwarding
+k port-forward <POD-NAME> 8081
 ```
 
 ## Maintainers
